@@ -5,10 +5,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("")
 public class HomeController {
 
-    @GetMapping("/public")
+    @GetMapping("/")
     public String publicEndpoint() {
         return "This is a public endpoint";
     }

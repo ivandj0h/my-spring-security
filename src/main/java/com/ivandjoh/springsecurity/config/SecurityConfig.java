@@ -17,10 +17,12 @@ public class SecurityConfig {
 
     // /api/** authenticated / HttpBasic
     @Bean
+    @Order(1)
     SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth-> {
-                    auth.requestMatchers("/api/**").authenticated();
+                    auth.anyRequest().authenticated();
                 })
                 .sessionManagement(session-> session.sessionCreationPolicy(STATELESS))
                 .httpBasic(withDefaults())
@@ -29,9 +31,10 @@ public class SecurityConfig {
 
     // /h2-console/** permitAll / no csrf / no frameOptions
     @Bean
-    @Order(1)
+    @Order(2)
     SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .securityMatcher(AntPathRequestMatcher.antMatcher("/h2-console/**"))
                 .authorizeHttpRequests(auth-> {
                     auth.requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll();
                 })
@@ -40,4 +43,17 @@ public class SecurityConfig {
                 .build();
     }
 
+    // /** permitAll /private => must log in through a formLogin
+    @Bean
+    @Order(3)
+    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .authorizeHttpRequests(auth-> {
+                    auth.requestMatchers("/").permitAll();
+                    auth.requestMatchers("/error").permitAll();
+                    auth.anyRequest().authenticated();
+                })
+                .formLogin(withDefaults())
+                .build();
+    }
 }
